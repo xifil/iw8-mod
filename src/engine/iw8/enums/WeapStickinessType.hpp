@@ -1,0 +1,15 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class WeapStickinessType : int {
+		WEAPSTICKINESS_NONE = 0x0,
+		WEAPSTICKINESS_ALL = 0x1,
+		WEAPSTICKINESS_ALL_ORIENT = 0x2,
+		WEAPSTICKINESS_GROUND = 0x3,
+		WEAPSTICKINESS_GROUND_WITH_YAW = 0x4,
+		WEAPSTICKINESS_GROUND_ORIENT = 0x5,
+		WEAPSTICKINESS_KNIFE = 0x6,
+		WEAPSTICKINESS_COUNT = 0x7
+	};
+}

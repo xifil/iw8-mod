@@ -1,0 +1,15 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class weapInventoryType_t : int {
+		WEAPINVENTORY_PRIMARY = 0x0,
+		WEAPINVENTORY_OFFHAND = 0x1,
+		WEAPINVENTORY_ITEM = 0x2,
+		WEAPINVENTORY_ALTMODE = 0x3,
+		WEAPINVENTORY_EXCLUSIVE = 0x4,
+		WEAPINVENTORY_SCAVENGER = 0x5,
+		WEAPINVENTORY_MODEL_ONLY = 0x6,
+		WEAPINVENTORYCOUNT = 0x7
+	};
+}

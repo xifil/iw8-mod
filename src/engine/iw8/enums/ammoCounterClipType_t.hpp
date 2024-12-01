@@ -1,0 +1,15 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class ammoCounterClipType_t : int {
+		AMMO_COUNTER_CLIP_NONE = 0x0,
+		AMMO_COUNTER_CLIP_MAGAZINE = 0x1,
+		AMMO_COUNTER_CLIP_SHORTMAGAZINE = 0x2,
+		AMMO_COUNTER_CLIP_SHOTGUN = 0x3,
+		AMMO_COUNTER_CLIP_ROCKET = 0x4,
+		AMMO_COUNTER_CLIP_BELTFED = 0x5,
+		AMMO_COUNTER_CLIP_ALTWEAPON = 0x6,
+		AMMO_COUNTER_CLIP_COUNT = 0x7
+	};
+}

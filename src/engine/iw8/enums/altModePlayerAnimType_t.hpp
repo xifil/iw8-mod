@@ -1,0 +1,12 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class altModePlayerAnimType_t : int {
+		ALTMODEPLAYERANIMTYPE_NONE = 0x0,
+		ALTMODEPLAYERANIMTYPE_LAUNCHER = 0x1,
+		ALTMODEPLAYERANIMTYPE_SHOTGUN = 0x2,
+		ALTMODEPLAYERANIMTYPE_FIRESELECTOR = 0x3,
+		NUM_ALTMODEPLAYERANIMTYPES = 0x4
+	};
+}

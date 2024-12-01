@@ -1,0 +1,18 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum MaterialArgumentType : std::int8_t {
+		MTL_ARG_CODE_CONST = 0x0,
+		MTL_ARG_CODE_TEXTURE = 0x1,
+		MTL_ARG_CODE_PERSISTENT_TEXTURE = 0x2,
+		MTL_ARG_CODE_BUFFER = 0x3,
+		MTL_ARG_CODE_PERSISTENT_BUFFER = 0x4,
+		MTL_ARG_MATERIAL_TEXTURE = 0x5,
+		MTL_ARG_CODE_RWTEXTURE = 0x6,
+		MTL_ARG_CODE_RWBUFFER = 0x7,
+		MTL_ARG_CODE_CBUFFER = 0x8,
+		MTL_ARG_MATERIAL_CONST = 0x9,
+		MTL_ARG_COUNT = 0xA
+	};
+}

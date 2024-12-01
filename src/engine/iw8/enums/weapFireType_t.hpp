@@ -1,0 +1,14 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class weapFireType_t : int {
+		WEAPON_FIRETYPE_FULLAUTO = 0x0,
+		WEAPON_FIRETYPE_SINGLESHOT = 0x1,
+		WEAPON_FIRETYPE_BURST = 0x2,
+		WEAPON_FIRETYPE_DOUBLEBARREL = 0x3,
+		WEAPON_FIRETYPE_DOUBLEBARREL_DUALTRIGGER = 0x4,
+		WEAPON_FIRETYPE_BEAM = 0x5,
+		WEAPON_FIRETYPECOUNT = 0x6
+	};
+}

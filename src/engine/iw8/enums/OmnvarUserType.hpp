@@ -1,0 +1,17 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class OmnvarUserType : std::int8_t {
+		OMNVAR_USER_TYPE_BOOL = 0x0,
+		OMNVAR_USER_TYPE_FLOAT = 0x1,
+		OMNVAR_USER_TYPE_INT = 0x2,
+		OMNVAR_USER_TYPE_TIME = 0x3,
+		OMNVAR_USER_TYPE_STRING = 0x4,
+		OMNVAR_USER_TYPE_PLAYER = 0x5,
+		OMNVAR_USER_TYPE_ENTITY = 0x6,
+		OMNVAR_USER_TYPE_BIT_FIELD = 0x7,
+		OMNVAR_USER_TYPE_NOTIFY = 0x8,
+		OMNVAR_USER_TYPE_ANGLE = 0x9
+	};
+}

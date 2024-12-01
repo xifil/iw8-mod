@@ -1,0 +1,15 @@
+#pragma once
+#include "screen.h"
+#include "lui_cod.h"
+#include "zones.h"
+#include "transients.h"
+#include "g_cmds.h"
+#include "cmd.h"
+#include "inventory.h"
+#include "weapons.h"
+#include "dvar.h"
+#include "script.h"
+#include "input.h"
+#include "omnvars.h"
+
+#include "patch.h"

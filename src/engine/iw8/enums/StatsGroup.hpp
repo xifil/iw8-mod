@@ -1,0 +1,16 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class StatsGroup : int {
+		STATSGROUP_RANKED = 0x0,
+		STATSGROUP_COOP = 0x1,
+		STATSGROUP_COMMON = 0x2,
+		STATSGROUP_RANKEDLOADOUTS = 0x3,
+		STATSGROUP_PRIVATELOADOUTS = 0x4,
+		STATSGROUP_NONGAME = 0x5,
+		STATSGROUP_COUNT = 0x6,
+		STATSGROUP_IGNORE = 0x7,
+		STATSGROUP_FIRST = 0x0
+	};
+}

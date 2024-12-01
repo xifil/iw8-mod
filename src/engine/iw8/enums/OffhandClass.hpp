@@ -1,0 +1,16 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class OffhandClass : int {
+		OFFHAND_CLASS_NONE = 0x0,
+		OFFHAND_CLASS_FRAG_GRENADE = 0x1,
+		OFFHAND_CLASS_SMOKE_GRENADE = 0x2,
+		OFFHAND_CLASS_FLASH_GRENADE = 0x3,
+		OFFHAND_CLASS_MOLOTOV = 0x4,
+		OFFHAND_CLASS_THROWINGKNIFE = 0x5,
+		OFFHAND_CLASS_SHIELD = 0x6,
+		OFFHAND_CLASS_OTHER = 0x7,
+		OFFHAND_CLASS_COUNT = 0x8
+	};
+}

@@ -1,0 +1,526 @@
+#include "addr_utils.hpp"
+#include "g_cmds.h"
+
+#include <string.h>
+#include <stdio.h>
+
+#include "game_inc.h"
+#include "saved_settings.h"
+#include "functions.hpp"
+#include "structs.h"
+
+#include "engine/iw8/DDLFile.hpp"
+#include "engine/iw8/SvClient.hpp"
+#include "engine/iw8/enums/DDLType.hpp"
+
+#include "game/game.hpp"
+
+void addCustomCmds() {
+	Cmd_AddCommandInternal("set_byte", set_byte_f, &set_byte_f_VAR);
+	Cmd_AddCommandInternal("set_short", set_short_f, &set_short_f_VAR);
+	Cmd_AddCommandInternal("set_int", set_int_f, &set_int_f_VAR);
+	Cmd_AddCommandInternal("set_float", set_float_f, &set_float_f_VAR);
+	Cmd_AddCommandInternal("set_pointer", set_pointer_f, &set_pointer_f_VAR);
+	Cmd_AddCommandInternal("quit", Cmd_Quit_f, &quit_f_VAR);
+	Cmd_AddCommandInternal("openmenu", Cmd_OpenMenu_f, &openmenu_f_VAR);
+	Cmd_AddCommandInternal("addbot", Cmd_AddBot_f, &addbot_f_VAR);
+	Cmd_AddCommandInternal("addtestclient", Cmd_AddTestClient_f, &addTestClient_f_VAR);
+	Cmd_AddCommandInternal("ddldump", Cmd_DDLDump_f, &ddldump_f_VAR);
+	// Cmd_AddCommandInternal("weapondefdump", Cmd_WeaponDefDump_f, &weapondefdump_f_VAR);
+	//Cmd_AddCommandInternal("view_vehicle_ents", Cmd_ViewVehicleEnts_f, &view_vehicle_ents_f_VAR);
+	// Cmd_AddCommandInternal("save_inventory", Cmd_LoadoutSave_f, &loadout_save_f_VAR);
+	Cmd_AddCommandInternal("map_restart", SV_CmdsMP_MapRestart_f, &MapRestart_f_VAR);
+	Cmd_AddCommandInternal("fast_restart", SV_CmdsMP_FastRestart_f, &FastRestart_f_VAR);
+	Cmd_AddCommandInternal("setOmnvar", Cmd_Omnvar_Set_f, &omnvar_set_f_VAR);
+	// Cmd_AddCommandInternal("dumpomnvars", Cmd_Omnvars_Dump_f, &omnvar_dump_f_VAR);
+	Cmd_AddCommandInternal("unlockAll", Cmd_UnlockAll_f, &unlockall_f_VAR);
+	Cmd_AddCommandInternal("dumpweapondef", Cmd_WeaponDefDump_f, &dump_weapdefs_f_VAR);
+	Cmd_AddCommandInternal("loadweapondef", Cmd_WeaponDef_Load_f, &load_weapdef_f_VAR);
+}
+
+void G_CmdsMP_ClientCommand_Detour(int clientNum) {
+	uintptr_t client = reinterpret_cast<uintptr_t>((*g_Pointers->m_g_entities)[clientNum].m_Client);
+
+	char command[1024];
+	SV_Cmd_ArgvBuffer(0, command, 1024);
+
+	if (client) {
+		if (strcmp(command, "noclip") == 0) {
+			if (CheatsOk(clientNum)) {
+				Cmd_Noclip_f(clientNum);
+			}
+			return;
+		}
+		if (strcmp(command, "give") == 0) {
+			if (CheatsOk(clientNum)) {
+				SV_Cmd_ArgvBuffer(1, command, 1024);
+				IW8::Weapon weap;
+				if (BG_Weapons_GetFullWeaponForName(command, &weap, BG_FindBaseWeaponForName)) {
+					if (SV_Cmd_Argc() == 3) {
+						SV_Cmd_ArgvBuffer(2, command, 1024);
+						weap.m_WeaponCamo = atoi(command);
+					}
+					if (G_Weapon_GivePlayerWeapon(client, 0, &weap, 0, 0, 0)) {
+						G_Items_AddAmmo(client, &weap, 0, 9999, 1);
+						G_Weapon_SelectWeapon(clientNum, &weap);
+					}
+				}
+			}
+		}
+
+		if (strcmp(command, "give_akimbo") == 0)
+		{
+			if (CheatsOk(clientNum))
+			{
+				SV_Cmd_ArgvBuffer(1, command, 1024);
+				IW8::Weapon weap;
+				if (BG_Weapons_GetFullWeaponForName(command, &weap, BG_FindBaseWeaponForName))
+				{
+					if (SV_Cmd_Argc() == 3)
+					{
+						SV_Cmd_ArgvBuffer(2, command, 1024);
+						weap.m_WeaponCamo = atoi(command);
+					}
+					if (G_Weapon_GivePlayerWeapon(client, 0, &weap, 1, 0, 0))
+					{
+						G_Items_AddAmmo(client, &weap, 0, 9999, 1);
+						G_Weapon_SelectWeapon(clientNum, &weap);
+					}
+				}
+			}
+		}
+
+		if (strcmp(command, "ks_give") == 0) {
+			if (CheatsOk(clientNum)) {
+				SV_Cmd_ArgvBuffer(1, command, 1024);
+				scrContext_t* ctx = ScriptContext_Server();
+				Scr_AddString(ctx, command);
+
+				Scr_FreeThread(ctx, GScr_ExecEntThread(&(*g_Pointers->m_g_entities)[clientNum], 0x1B65FC, 1));
+			}
+		}
+		if (strcmp(command, "bold_msg") == 0) {
+			char msgbuf[500];
+			SV_Cmd_ArgvBuffer(1, command, 1024);
+			if (strlen(command) < 500) {
+				for (int i = 0; i < 30; i++) {
+					IW8::SvClient* ms_clients = *reinterpret_cast<IW8::SvClient**>(0x14E17F690_g + (8 * i));
+					if (ms_clients) {
+						snprintf(msgbuf, 500, "g \"%s\"", command);
+						ms_clients->SendServerCommand(IW8::svscmd_type::SV_CMD_CAN_IGNORE, msgbuf);
+					}
+				}
+			}
+		}
+		if (strcmp(command, "remove_barriers") == 0) {
+			if (CheatsOk(clientNum)) {
+				auto SL_ConvertToString = reinterpret_cast<const char* (*)(int)>(0x14131AA20_g);
+				for (int i = 0; i < 1024; i++) {
+					int classname = static_cast<int>((*g_Pointers->m_g_entities)[i].m_ClassName);
+					if (classname) {
+						if (strcmp(SL_ConvertToString(classname), "trigger_hurt") == 0 ||
+							strcmp(SL_ConvertToString(classname), "trigger_multiple") == 0 ||
+							strcmp(SL_ConvertToString(classname), "trigger_damage") == 0) {
+							auto G_SetOrigin = reinterpret_cast<bool(*)(IW8::gentity_s* ent, const IW8::vec3_t* origin, bool warpPhysics, bool updateBroadphase)>(0x140FD4CC0_g);
+							IW8::vec3_t gone = { 0, 0, -9999999 };
+							G_SetOrigin(&(*g_Pointers->m_g_entities)[i], &gone, true, true);
+						}
+					}
+				}
+				for (int i = 0; i < 30; i++) {
+					IW8::SvClient* ms_clients = *reinterpret_cast<IW8::SvClient**>(0x14E17F690_g + (8 * i));
+					if (ms_clients) {
+						ms_clients->SendServerCommand(IW8::svscmd_type::SV_CMD_CAN_IGNORE, "g \"Death barriers removed!\"");
+					}
+				}
+			}
+		}
+
+		/*if (strcmp(command, "scmd") == 0)
+		{
+			if (CheatsOk(clientNum) && clientNum == 0)
+			{
+				char msgbuf[500];
+				std::string cmdline = "";
+				if (SV_Cmd_Argc() > 1)
+				{
+					for (int i = 0; i < SV_Cmd_Argc() - 1; i++)
+					{
+						SV_Cmd_ArgvBuffer(1 + i, msgbuf, 500);
+						if (i == 0)
+						{
+							cmdline = msgbuf;
+						}
+						else
+						{
+							cmdline = cmdline + " " + std::string(msgbuf);
+						}
+						std::cout << 1 + i << ": '" << msgbuf << "'" << std::endl;
+						memset(msgbuf, 0, 500);
+					}
+
+					const char* cCmdLine = cmdline.c_str();
+					memcpy(msgbuf, cCmdLine, cmdline.length() + 1);
+					std::cout << "msgbug: '" << msgbuf << "'" << std::endl;
+
+					SvClient* ms_clients = *reinterpret_cast<SvClient**>(0x14E17F690_g + (8 * clientNum));
+					if (ms_clients)
+					{
+						ms_clients->SendServerCommand(1, msgbuf);
+					}
+				}
+			}
+		}*/
+
+		if (strcmp(command, "viewpos") == 0) {
+			if (CheatsOk(clientNum)) {
+				char msgbuf[500];
+				IW8::SvClient* ms_clients = *reinterpret_cast<IW8::SvClient**>(0x14E17F690_g + (8 * clientNum));
+				if (ms_clients) {
+					snprintf(msgbuf, 500, "f \"viewpos: (%.2f, %.2f, %.2f)\"",
+						(*g_Pointers->m_g_entities)[clientNum].m_R.m_CurrentOrigin.x, (*g_Pointers->m_g_entities)[clientNum].m_R.m_CurrentOrigin.y, (*g_Pointers->m_g_entities)[clientNum].m_R.m_CurrentOrigin.z);
+					ms_clients->SendServerCommand(IW8::svscmd_type::SV_CMD_CAN_IGNORE, msgbuf);
+				}
+			}
+		}
+
+		if (strcmp(command, "setpos") == 0)
+		{
+			if (CheatsOk(clientNum) && clientNum == 0)
+			{
+				if (SV_Cmd_Argc() == 4)
+				{
+					char xBuf[100];
+					char yBuf[100];
+					char zBuf[100];
+
+					SV_Cmd_ArgvBuffer(1, xBuf, 100);
+					SV_Cmd_ArgvBuffer(2, yBuf, 100);
+					SV_Cmd_ArgvBuffer(3, zBuf, 100);
+
+					float x = strToFloat(xBuf);
+					float y = strToFloat(yBuf);
+					float z = strToFloat(zBuf);
+
+					struct gclient_s
+					{
+						char __padding[0x30];
+						float coords[3];
+					};
+
+					gclient_s* host = (gclient_s*)(*g_Pointers->m_g_entities)[0].m_Client;
+					host->coords[0] = x;
+					host->coords[1] = y;
+					host->coords[2] = z;
+				}
+			}
+		}
+	}
+
+	g_cmdsmp_clientcommand.stub<void>(clientNum);
+}
+
+void set_byte_f()
+{
+	char command[500];
+	if (Cmd_Argc() == 3)
+	{
+		Cmd_ArgvBuffer(1, command, 500);
+		uintptr_t address = _b(atoll(command));
+		Cmd_ArgvBuffer(2, command, 500);
+		utils::hook::set<unsigned char>(address, atoi(command));
+	}
+}
+
+void set_short_f()
+{
+	char command[500];
+	if (Cmd_Argc() == 3)
+	{
+		Cmd_ArgvBuffer(1, command, 500);
+		uintptr_t address = _b(atoll(command));
+		Cmd_ArgvBuffer(2, command, 500);
+		utils::hook::set<unsigned short>(address, atol(command));
+	}
+}
+
+void set_int_f()
+{
+	char command[500];
+	if (Cmd_Argc() == 3)
+	{
+		Cmd_ArgvBuffer(1, command, 500);
+		uintptr_t address = _b(atoll(command));
+		Cmd_ArgvBuffer(2, command, 500);
+		utils::hook::set<unsigned int>(address, _atoi64(command));
+	}
+}
+
+void set_float_f()
+{
+	char command[500];
+	if (Cmd_Argc() == 3)
+	{
+		Cmd_ArgvBuffer(1, command, 500);
+		uintptr_t address = _b(atoll(command));
+		Cmd_ArgvBuffer(2, command, 500);
+		utils::hook::set<float>(address, strToFloat(command));
+	}
+}
+
+void set_pointer_f()
+{
+	char command[500];
+	if (Cmd_Argc() == 3)
+	{
+		Cmd_ArgvBuffer(1, command, 500);
+		uintptr_t address = _b(atoll(command));
+		Cmd_ArgvBuffer(2, command, 500);
+		utils::hook::set<unsigned __int64>(address, _atoi64(command));
+	}
+}
+
+void Cmd_Quit_f()
+{
+	ExitProcess(0x1);
+}
+
+void Cmd_OpenMenu_f()
+{
+	char command[500];
+	if (Cmd_Argc() == 2)
+	{
+		auto LUI_OpenMenu = reinterpret_cast<void(*)(int localClientNum, const char* menuName, int isPopup, int isModal, int isExclusive)>(0x141B9BDB0_g);
+		Cmd_ArgvBuffer(1, command, 500);
+		LUI_OpenMenu(0, command, true, false, false);
+	}
+}
+
+void Cmd_AddTestClient_f()
+{
+	auto max_clients = *(int*)0x14EEB0CE0_g;
+	auto client_count = *(int*)0x14E195070_g;
+	auto spawnable_bots = max_clients - client_count;
+	if (spawnable_bots <= 0)
+		return;
+
+	int spawn_number = 1;
+	if (Cmd_Argc() == 2)
+	{
+		char command[100]{ 0 };
+		Cmd_ArgvBuffer(1, command, sizeof(command));
+		spawn_number = atoll(command);
+	}
+
+	if (spawn_number > spawnable_bots)
+		spawn_number = spawnable_bots;
+
+	std::vector<short*> ents{};
+	for (int i{}; i < spawn_number; ++i)
+	{
+		auto ent = SV_ClientMP_AddTestClient();
+		if (!ent)
+			continue;
+
+		GScr_AddEntity(ent);
+		SV_ClientMP_SpawnBotOrTestClient(ent);
+		ents.push_back(ent);
+	}
+
+	Sleep(100);
+	for (auto& ent : ents) {
+		auto scrContext = ScriptContext_Server();
+		Scr_AddString(scrContext, "class1");
+		Scr_AddString(scrContext, "class_select");
+		GScr_Notify(ent, SL_GetString("loadout_class_selected"), 2);
+	}
+}
+
+void Cmd_AddBot_f()
+{
+	auto max_clients = *(int*)0x14EEB0CE0_g;
+	auto client_count = *(int*)0x14E195070_g;
+	auto spawnable_bots = max_clients - client_count;
+	if (spawnable_bots <= 0)
+		return;
+
+	int spawn_number = 1;
+	if (Cmd_Argc() == 2)
+	{
+		char command[100]{ 0 };
+		Cmd_ArgvBuffer(1, command, sizeof(command));
+		spawn_number = atoll(command);
+	}
+
+	if (spawn_number > spawnable_bots)
+		spawn_number = spawnable_bots;
+
+
+	for (int i{}; i < spawn_number; ++i)
+	{
+		auto ent = SV_ClientMP_AddBot();
+		if (!ent)
+			return;
+
+		GScr_AddEntity(ent);
+		SV_ClientMP_SpawnBotOrTestClient(ent);
+		//Sleep(20);
+	}
+}
+
+void SV_CmdsMP_MapRestart_f()
+{
+	auto SV_CmdsMP_RequestMapRestart = reinterpret_cast<void(*)(bool loadScripts, bool migrate)>(0x14136C310_g);
+	SV_CmdsMP_RequestMapRestart(1, 0);
+}
+
+void SV_CmdsMP_FastRestart_f()
+{
+	auto SV_CmdsMP_RequestMapRestart = reinterpret_cast<void(*)(bool loadScripts, bool migrate)>(0x14136C310_g);
+	SV_CmdsMP_RequestMapRestart(0, 0);
+}
+
+void Cmd_DDLDump_f()
+{
+	int cur = 0;
+	IW8::DDLFile* g_assets = *(IW8::DDLFile**)(0x14B8F5C48_g);
+	if (g_assets[cur].m_Name) {
+		while (g_assets[cur].m_Name != 0 && g_assets[cur].m_DDLDef != 0) {
+			printf("%s\n", g_assets[cur].m_Name);
+			for (int istruct = 0; istruct < g_assets[cur].m_DDLDef->m_StructCount; istruct++) {
+				printf("struct %s { //count: %i\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_MemberCount);
+				for (int imember = 0; imember < g_assets[cur].m_DDLDef->m_StructList[istruct].m_MemberCount; imember++) {
+					if (g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize == 1) {
+						switch (static_cast<IW8::DDLType>(g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Type)) {
+						case IW8::DDLType::DDL_STRING_TYPE:
+							printf("\tconst char* %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_FIXEDPOINT_TYPE:
+						case IW8::DDLType::DDL_FLOAT_TYPE:
+							printf("\tfloat %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_BYTE_TYPE:
+							printf("\tbyte %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_SHORT_TYPE:
+							printf("\tshort %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_INT_TYPE:
+							printf("\tint %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_UINT_TYPE:
+							printf("\tuint %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_PAD_TYPE:
+							printf("\tchar %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_HASH_TYPE:
+							printf("\thash %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_UINT64_TYPE:
+							printf("\tuint64_t %s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_ENUM_TYPE:
+							printf("\t%s %s;\n", g_assets[cur].m_DDLDef->m_EnumList[g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ExternalIndex].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						case IW8::DDLType::DDL_STRUCT_TYPE:
+							printf("\t%s %s;\n", g_assets[cur].m_DDLDef->m_StructList[g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ExternalIndex].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						default:
+							printf("\t%s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						}
+					}
+					else {
+						switch (static_cast<IW8::DDLType>(g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Type)) {
+						case IW8::DDLType::DDL_FIXEDPOINT_TYPE:
+						case IW8::DDLType::DDL_FLOAT_TYPE:
+							printf("\tfloat %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_STRING_TYPE:
+							printf("\tconst char* %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_BYTE_TYPE:
+							printf("\tbyte %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_SHORT_TYPE:
+							printf("\tshort %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_INT_TYPE:
+							printf("\tint %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_UINT_TYPE:
+							printf("\tuint %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_PAD_TYPE:
+							printf("\tchar %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_HASH_TYPE:
+							printf("\thash %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_ENUM_TYPE:
+							printf("\t%s %s[%i];\n", g_assets[cur].m_DDLDef->m_EnumList[g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ExternalIndex].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_UINT64_TYPE:
+							printf("\tuint64_t %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						case IW8::DDLType::DDL_STRUCT_TYPE:
+							printf("\t%s %s[%i];\n", g_assets[cur].m_DDLDef->m_StructList[g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ExternalIndex].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name, g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_ArraySize);
+							break;
+						default:
+							printf("\t%s;\n", g_assets[cur].m_DDLDef->m_StructList[istruct].m_Members[imember].m_Name);
+							break;
+						}
+					}
+				}
+				printf("}\n");
+			}
+			for (int ienum = 0; ienum < g_assets[cur].m_DDLDef->m_EnumCount; ienum++) {
+				printf("enum %s { //count: %i\n", g_assets[cur].m_DDLDef->m_EnumList[ienum].m_Name, g_assets[cur].m_DDLDef->m_EnumList[ienum].m_MemberCount);
+				for (int imember = 0; imember < g_assets[cur].m_DDLDef->m_EnumList[ienum].m_MemberCount; imember++) {
+					printf("\t%s,\n", g_assets[cur].m_DDLDef->m_EnumList[ienum].m_Members[imember]);
+				}
+				printf("}\n\n\n\n");
+			}
+			cur++;
+		}
+	}
+}
+
+void Cmd_WeaponDefDump_f() {
+	if (CheatsOk(0)) {
+		Dump_WeaponDef();
+	}
+}
+
+void Cmd_ViewVehicleEnts_f() {
+	auto SL_ConvertToString = reinterpret_cast<const char* (*)(int)>(0x14131AA20_g);
+	for (int i = 0; i < 1024; i++) {
+		int classname = static_cast<int>((*g_Pointers->m_g_entities)[i].m_ClassName);
+		if (classname) {
+			const char* s_classname = SL_ConvertToString(classname);
+			if (reinterpret_cast<uintptr_t>((*g_Pointers->m_g_entities)[i].m_Vehicle)) {
+				printf("vehicle %s\n", s_classname);
+			}
+		}
+	}
+}
+
+void Cmd_LoadoutSave_f() {
+	SaveInventory();
+}
+
+void Cmd_UnlockAll_f() {
+	if (!saved_settings::g_unlock_all_enabled) {
+		saved_settings::g_unlock_all_enabled = true;
+		saved_settings::Save();
+	}
+
+	Cbuf_AddText("seta unlockAllItems 1");
+}
+
+void Cmd_WeaponDef_Load_f() {
+	if (CheatsOk(0)) {
+		Load_WeaponDef();
+	}
+}

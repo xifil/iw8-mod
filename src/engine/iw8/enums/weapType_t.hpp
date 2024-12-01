@@ -1,0 +1,19 @@
+#pragma once
+#include "engine/engine_common.hpp"
+
+namespace IW8 {
+	enum class weapType_t : int {
+		WEAPTYPE_NONE = 0x0,
+		WEAPTYPE_MODEL_ONLY = 0x1,
+		WEAPTYPE_BULLET = 0x2,
+		WEAPTYPE_GRENADE = 0x3,
+		WEAPTYPE_PROJECTILE = 0x4,
+		WEAPTYPE_RIOTSHIELD = 0x5,
+		WEAPTYPE_SCRIPT = 0x6,
+		WEAPTYPE_SHIELD = 0x7,
+		WEAPTYPE_CHARGE_SHIELD = 0x8,
+		WEAPTYPE_LOCATION_SELECT = 0x9,
+		WEAPTYPE_EQUIP_DEPLOY = 0xA,
+		WEAPTYPE_NUM = 0xB
+	};
+}
