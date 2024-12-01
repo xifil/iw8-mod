@@ -43,7 +43,7 @@ newaction {
 
 		-- generate version.hpp with a revision number if not equal
 		gitDescribeOutputQuoted = cstrquote(gitDescribeOutput)
-		if oldVersion ~= gitDescribeOutputQuoted then
+		if --[[oldVersion ~= gitDescribeOutputQuoted--]] true then
 			-- get current git hash and write to version.txt (used by the preliminary updater)
 			-- TODO - remove once proper updater and release versioning exists
 			local proc = assert(io.popen("git rev-parse HEAD", "r"))
@@ -85,7 +85,9 @@ newaction {
 			local revNumber = assert(proc:read('*a')):gsub("%s+", "")
 
 			print ("Update " .. oldVersion .. " -> " .. gitDescribeOutputQuoted)
-
+			
+			local date = os.date("%a %b %d %H:%M:%S %Y");
+			
 			-- write version header
 			local versionHeader = assert(io.open(wks.location .. "/src/version.hpp", "w"))
 			versionHeader:write("/*\n")
@@ -108,12 +110,16 @@ newaction {
 			versionHeader:write("#ifdef GIT_BRANCH\n")
 			versionHeader:write("#	undef GIT_BRANCH\n")
 			versionHeader:write("#endif\n")
+			versionHeader:write("#ifdef PRJ_TIMESTAMP\n")
+			versionHeader:write("#	undef PRJ_TIMESTAMP\n")
+			versionHeader:write("#endif\n")
 			versionHeader:write("\n")
 			versionHeader:write("#define GIT_DESCRIBE " .. gitDescribeOutputQuoted .. "\n")
 			versionHeader:write("#define GIT_DIRTY " .. revDirty .. "\n")
 			versionHeader:write("#define GIT_HASH " .. cstrquote(gitCommitHash) .. "\n")
 			versionHeader:write("#define GIT_TAG " .. cstrquote(tagName) .. "\n")
 			versionHeader:write("#define GIT_BRANCH " .. cstrquote(branchName) .. "\n")
+			versionHeader:write("#define PRJ_TIMESTAMP " .. cstrquote(date) .. "\n")
 			versionHeader:close()
 		end
 	end
@@ -150,13 +156,14 @@ filter "configurations:Debug"
 filter "system:Windows"
 	systemversion "latest"
 
-buildDir = "$(SolutionDir)\\build\\$(SolutionName)\\$(PlatformName)\\$(ProjectName)\\"
-intBuildDir = "$(SolutionDir)\\build\\$(SolutionName)-int\\$(PlatformName)\\$(ProjectName)\\"
+buildDir = "$(SolutionDir)\\build\\$(SolutionName)\\$(PlatformName)\\$(ProjectName)\\$(Configuration)\\"
+intBuildDir = "$(SolutionDir)\\build\\$(SolutionName)-int\\$(PlatformName)\\$(ProjectName)\\$(Configuration)\\"
 
 project "client"
 	location "src"
 	kind "SharedLib"
 	language "C++"
+	targetname "discord_game_sdk"
 
 	files {
 		"src/**.h",

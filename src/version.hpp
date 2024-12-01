@@ -18,9 +18,13 @@
 #ifdef GIT_BRANCH
 #	undef GIT_BRANCH
 #endif
+#ifdef PRJ_TIMESTAMP
+#	undef PRJ_TIMESTAMP
+#endif
 
-#define GIT_DESCRIBE ""
+#define GIT_DESCRIBE "0ca0ba8-dirty"
 #define GIT_DIRTY 1
-#define GIT_HASH "HEAD"
+#define GIT_HASH "0ca0ba8b4003b91e6d0e12765295444f1d108919"
 #define GIT_TAG ""
-#define GIT_BRANCH "master"
+#define GIT_BRANCH "develop"
+#define PRJ_TIMESTAMP "Sun Dec 01 13:27:42 2024"

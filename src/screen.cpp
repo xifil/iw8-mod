@@ -4,6 +4,7 @@
 #include "engine/iw8/CachedAssets_t.hpp"
 #include "engine/iw8/GfxFont.hpp"
 #include "functions.hpp"
+#include "version.hpp"
 
 void CL_ScreenMP_DrawOverlay_Detour() {
 	auto DevGui_Draw = reinterpret_cast<void(*)(int)>(0x1417E5CD0_g);
@@ -22,7 +23,7 @@ void CL_ScreenMP_DrawOverlay_Detour() {
 		IW8::GfxFont* font = sharedUiInfo_assets->m_SubtitleFont;
 		float color[4] = { .666f, .666f, .666f, .666f };
 		//CL_DrawText(0x14EF2DEA0_g, "iw8-mod: dev", 0x7FFFFFFF, sharedUiInfo_assets->m_SmallFont, 0.f, 480.f, 1, 1, 1.f, 1.f, color, 7);
-		R_AddCmdDrawText("iw8-mod: dev (pt) [" __TIMESTAMP__ "]", 0x7FFFFFFF, font, font->m_PixelHeight,
+		R_AddCmdDrawText("iw8-mod: " GIT_DESCRIBE " (pre-transfer) [" PRJ_TIMESTAMP "]", 0x7FFFFFFF, font, font->m_PixelHeight,
 			4.f, 4.f + static_cast<float>(font->m_PixelHeight), 1.f, 1.f, 0.f, color);
 	}
 }

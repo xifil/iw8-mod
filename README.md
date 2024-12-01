@@ -48,8 +48,11 @@ NOTE: You must legally own [Call of Duty®: Modern Warfare](https://store.steamp
 ## Compile from source
 
 - Clone the Git repo. Do NOT download it as ZIP, that won't work.
-- Update the submodules and run `premake5 vs2022` or simply use the delivered `generate.bat`.
-- Build via solution file in `iw8_vs2022.sln`.
+- Update the submodules and run `premake5 vs2019` or simply use the delivered `generate.bat`.
+- Build via solution file in `iw8_vs2019.sln`.
+
+> Currently `vs2022` isn't a valid configuration as any mutex will fail to lock and cause an access violation, if you think you can figure this out you are literally insane, I've tried and failed and nothing I do fixes this.
+
 <!--
 ### Premake arguments
 

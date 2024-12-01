@@ -48,7 +48,6 @@ extern "C" __declspec(dllexport) int DiscordCreate() {
 
 BOOL WINAPI DllMain(HMODULE hModule, DWORD Reason, LPVOID lpVoid) {
 	initAddrUtils();
-	utils::hook::jump(0x1403061A0_g, MysteryFunctionDetour); // Mystery function 1
 	if (Reason == DLL_PROCESS_ATTACH) {
 		AllocConsole();
 		FILE* Dummy;
@@ -57,6 +56,7 @@ BOOL WINAPI DllMain(HMODULE hModule, DWORD Reason, LPVOID lpVoid) {
 		SetConsoleTitleA("iw8-mod (fork of Donetsk)");
 
 		// todo: extract blizzard compressed data
+		utils::hook::jump(0x1403061A0_g, MysteryFunctionDetour); // Mystery function 1
 
 		utils::nt::library game{};
 
