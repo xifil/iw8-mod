@@ -30,18 +30,28 @@ namespace Memory {
         std::size_t modBase = (std::size_t)(modInfo.lpBaseOfDll);
         std::size_t modLen = (std::size_t)(modInfo.SizeOfImage);
 
-        for (std::size_t ix = 0; ix < modLen - patLen; ix++) {
-            bool found = true;
-
-            for (std::size_t jx = 0; jx < patLen; jx++) {
-                if (sig.mask[jx] != '?' && sig.data[jx] != *(std::uint8_t*)(modBase + ix + jx)) {
-                    found = false;
-                    break;
-                }
+        MEMORY_BASIC_INFORMATION64 pageInfo = {};
+        for (auto currentPage = modBase; currentPage < modBase + modLen; currentPage = pageInfo.BaseAddress + pageInfo.RegionSize) {
+            VirtualQuery(reinterpret_cast<LPCVOID>(currentPage), reinterpret_cast<PMEMORY_BASIC_INFORMATION>(&pageInfo), sizeof(MEMORY_BASIC_INFORMATION));
+            if (pageInfo.Protect == PAGE_NOACCESS || pageInfo.State != MEM_COMMIT || pageInfo.Protect & PAGE_GUARD) {
+                continue;
             }
 
-            if (found) {
-                return ScannedResult<std::remove_pointer_t<T>>((void*)(modBase + ix));
+            for (auto currentAddr = pageInfo.BaseAddress; currentAddr < pageInfo.BaseAddress + pageInfo.RegionSize - 0x8; currentAddr++) {
+                if (currentAddr < modBase + modLen - patLen) {
+                    bool found = true;
+
+                    for (std::size_t jx = 0; jx < patLen; jx++) {
+                        if (sig.mask[jx] != '?' && sig.data[jx] != *(std::uint8_t*)(currentAddr + jx)) {
+                            found = false;
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        return ScannedResult<std::remove_pointer_t<T>>((void*)(currentAddr));
+                    }
+                }
             }
         }
 

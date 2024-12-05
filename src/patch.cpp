@@ -20,7 +20,7 @@ IW8::dvar_t* cl_textChatEnabled = reinterpret_cast<IW8::dvar_t*>(0x14EEB0738_g);
 uintptr_t xuid_generated;
 int collision_ticker;
 void R_EndFrame_Detour() {
-	if (strcmp(g_Pointers->m_Dvar_GetStringSafe("ui_mapname"), "mp_donetsk") == 0) {
+	if (strcmp(g_Pointers->m_Dvar_GetStringSafe("NSQLTTMRMP" /* ui_mapname */), "mp_donetsk") == 0) {
 		*reinterpret_cast<int*>(0x14E385A68_g) = 80;
 		*reinterpret_cast<int*>(0x14E385A78_g) = 80;
 		if (collision_ticker == 60) {

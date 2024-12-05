@@ -5,7 +5,7 @@
 #include "game/game.hpp"
 
 void CL_TransientsCollisionMP_SetTransientMode_Detour(int mode) {
-	if (strcmp(g_Pointers->m_Dvar_GetStringSafe("ui_mapname"), "mp_donetsk") == 0) {
+	if (strcmp(g_Pointers->m_Dvar_GetStringSafe("NSQLTTMRMP" /* ui_mapname */), "mp_donetsk") == 0) {
 		*reinterpret_cast<int*>(0x145CC7534_g) = 1;
 	}
 	else {

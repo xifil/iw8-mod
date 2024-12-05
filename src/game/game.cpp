@@ -83,6 +83,11 @@ namespace Game {
 				{
 					{ "4C 8B 05 ? ? ? ? 48 8D 0D ? ? ? ? 48 8B D0 E8 ? ? ? ? BA ? ? ? ? 48 8B CE E8 ? ? ? ? 4D 8D 7F", SETUP_MOD(Add(3).Rip()) },
 					SETUP_POINTER(LUI_luaVM)
+				},
+				// s_luaInFrontend
+				{
+					{ "88 1D ? ? ? ? E8 ? ? ? ? 48 89 1D ? ? ? ? 88 1D", SETUP_MOD(Add(2).Rip()) },
+					SETUP_POINTER(s_luaInFrontend)
 				}
 			}
 		};

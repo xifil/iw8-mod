@@ -10,8 +10,6 @@
 #include <intrin.h>
 #include <Psapi.h>
 
-#pragma comment(lib, "ws2_32.lib")
-#pragma comment(lib, "user32.lib")
 
 #include "common/utils/hook.hpp"
 #include "common/utils/hardware_breakpoint.hpp"
@@ -19,8 +17,12 @@
 #include "ini.h"
 #include "json.hpp"
 
-#pragma warning(disable:4996)
+#pragma warning(disable : 4996)
 #pragma comment(lib, "Gdi32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "ws2_32.lib")
+
+#define CLIENT_SHIP 0
 
 
 struct menu_variables {

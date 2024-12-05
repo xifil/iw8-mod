@@ -42,7 +42,7 @@ void Dump_WeaponDef() {
 	char path[MAX_PATH + 1];
 	strcpy(path, g_Pointers->m_Dvar_GetStringSafe("fs_homepath"));
 	strcat(path, "\\players\\weapondef.json");
-	bool inFrontend = *(bool*)(0x1459D1750_g);
+	bool inFrontend = *g_Pointers->m_s_luaInFrontend;
 	if (!inFrontend) {
 		nlohmann::json weaponDefJson;
 		IW8::WeaponCompleteDef** bg_weaponCompleteDefs = (IW8::WeaponCompleteDef**)(0x14C6EC870_g);
@@ -102,7 +102,7 @@ void Load_WeaponDef() {
 	char path[MAX_PATH + 1];
 	strcpy(path, g_Pointers->m_Dvar_GetStringSafe("fs_homepath"));
 	strcat(path, "\\players\\weapondef.json");
-	bool inFrontend = *(bool*)(0x1459D1750_g);
+	bool inFrontend = *g_Pointers->m_s_luaInFrontend;
 	if (!inFrontend) {
 		if (file_exists(path)) {
 			std::ifstream jsonPath(path);

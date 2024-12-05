@@ -66,6 +66,7 @@ namespace Game {
 		IW8::CmdArgs* m_cmd_args{};
 		IW8::gentity_s** m_g_entities{};
 		IW8::lua_State** m_LUI_luaVM{};
+		bool* m_s_luaInFrontend{};
 	};
 }
 inline std::unique_ptr<Game::Pointers> g_Pointers{};

@@ -47,27 +47,22 @@ void Discord_UpdateStatus_Internal(DiscordInfo info) {
 void DiscordUpdate() {
 	if (discordInitalized) {
 		DiscordInfo info;
-		bool inFrontend = *(bool*)(0x1459D1750_g);
-		const char* dvarMap = g_Pointers->m_Dvar_GetStringSafe("ui_mapname");
-		const char* dvarMode = g_Pointers->m_Dvar_GetStringSafe("ui_gametype");
-		const char* mapName = GetMapName(dvarMap);
+		bool inFrontend = *g_Pointers->m_s_luaInFrontend;
+		const char* dvarMap = g_Pointers->m_Dvar_GetStringSafe("NSQLTTMRMP" /* ui_mapname */);
+		const char* dvarMode = g_Pointers->m_Dvar_GetStringSafe("MOLPOSLOMO" /* ui_gametype */);
+		startTime = std::time(0);
+		//info.partySize = *(int*)(0x14C7B0958_g);
+		info.partySize = 7;
+		info.partyMax = Dvar_GetIntSafe("OOTQKOTRM" /* party_maxplayers */);
 		if (inFrontend) {
-			startTime = std::time(0);
-			int partySize = *(int*)(0x14C7B0958_g);
 			info.mapName = "In Menus";
 			info.gameType = "Waiting";
-			info.partySize = partySize;
-			info.partyMax = Dvar_GetIntSafe("party_maxplayers");
 			info.largeImageKey = "mw";
 			info.smallImageKey = "";
 		}
 		else {
-			startTime = std::time(0);
-			int partySize = *(int*)(0x14C7B0958_g);
-			info.mapName = mapName;
+			info.mapName = GetMapName(dvarMap);
 			info.gameType = GetGametypeName(dvarMode);
-			info.partySize = partySize;
-			info.partyMax = Dvar_GetIntSafe("party_maxplayers");
 			info.largeImageKey = dvarMap;
 			info.smallImageKey = dvarMode;
 		}
@@ -89,11 +84,11 @@ void DiscordThread() {
 	}
 
 	while (discordInitalized) {
-		bool inFrontend = *(bool*)(0x1459D1750_g);
+		bool inFrontend = *g_Pointers->m_s_luaInFrontend;
 
 		Sleep(5000);
 
-		if (inFrontend != *(bool*)(0x1459D1750_g)) {
+		if (inFrontend != *g_Pointers->m_s_luaInFrontend) {
 			DiscordUpdate();
 		}
 	}
