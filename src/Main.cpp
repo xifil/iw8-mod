@@ -56,7 +56,8 @@ bool s_PatchedMysteryFunction = false;
 void PostUnpack() {
 #	if CLIENT_SHIP
 		if (!s_PatchedMysteryFunction) {
-			utils::hook::jump(0x140383F80_g, MysteryFunctionDetour);
+			//utils::hook::jump(0x140383F80_g, MysteryFunctionDetour);
+			utils::hook::set(0x143DF4548_g, MysteryFunctionDetour);
 			s_PatchedMysteryFunction = true;
 		}
 		return;

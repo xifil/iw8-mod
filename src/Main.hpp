@@ -22,7 +22,7 @@
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "ws2_32.lib")
 
-#define CLIENT_SHIP 0
+#define CLIENT_SHIP 1
 
 
 struct menu_variables {

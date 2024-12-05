@@ -62,10 +62,10 @@ const char* Hooks::SEH_StringEd_GetString_Detour(const char* pszReference) {
 		return "MULTIPLAYER";
 	}
 
-	if (strstr(pszReference, "LOCAL") != nullptr || strstr(pszReference, "local") != nullptr) {
-		return g_Pointers->m_j_va("%s (%s)", ret, pszReference);
-	}
-	else {
+	//if (strstr(pszReference, "LOCAL") != nullptr || strstr(pszReference, "local") != nullptr) {
+	//	return g_Pointers->m_j_va("%s (%s)", ret, pszReference);
+	//}
+	//else {
 		return ret;
-	}
+	//}
 }

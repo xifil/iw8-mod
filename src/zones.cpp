@@ -51,6 +51,11 @@ const char* DB_GetRawBufferInflate_Detour(const char* file, char* buffer, int le
 		return filecontents.c_str();
 	}
 	printf("[DB_GetRawBufferInflate] loading %s\n", file);
+	/*const char* og = db_getrawbufferinflate.stub<const char*>(file, buffer, length);
+	if (strstr(file, "dvar_defaults") != nullptr) {
+		printf("------ start dvar_defaults ------\n%s\n------- end dvar_defaults -------\n", og);
+	}
+	return og;*/
 	return db_getrawbufferinflate.stub<const char*>(file, buffer, length);
 }
 
