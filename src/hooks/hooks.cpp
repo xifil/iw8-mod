@@ -1,4 +1,5 @@
 #include "Main.hpp"
+#include "game/game.hpp"
 #include "hooks/hooks.hpp"
 
 void Hooks::Essential() {
@@ -17,12 +18,12 @@ void Hooks::Essential() {
 	g_LUI_CoD_LuaCall_GetServerData.create(0x1419E1680_g, LUI_CoD_LuaCall_GetServerData_Detour);
 	g_MarketingCommsManager_GetMessageToDisplayCount.create(0x140F69500_g, MarketingCommsManager_GetMessageToDisplayCount_Detour);
 	g_NET_OutOfBandData.create(0x1412BB350_g, NET_OutOfBandData_Detour);
-	g_PartyHost_StartPrivateParty.create(0x14119F0D0_g, PartyHost_StartPrivateParty_Detour);
-	g_ProcessScriptFile.create(0x141322350_g, ProcessScriptFile_Detour);
-	g_SEH_StringEd_GetString.create(0x1413CC2A0_g, SEH_StringEd_GetString_Detour);
-	g_SV_UpdateUserinfo_f.create(0x14136D0C0_g, SV_UpdateUserinfo_f_Detour);
+	g_PartyHost_StartPrivateParty.create(g_Pointers->m_PartyHost_StartPrivateParty, PartyHost_StartPrivateParty_Detour);
+	g_ProcessScriptFile.create(g_Pointers->m_ProcessScriptFile, ProcessScriptFile_Detour);
+	g_SEH_StringEd_GetString.create(g_Pointers->m_SEH_StringEd_GetString, SEH_StringEd_GetString_Detour);
+	g_SV_UpdateUserinfo_f.create(g_Pointers->m_SV_UpdateUserinfo_f, SV_UpdateUserinfo_f_Detour);
 }
 
 void Hooks::Secondary() {
-	g_DB_Zones_PerformZoneLoad.create(0x140F677A0_g, DB_Zones_PerformZoneLoad_Detour);
+	g_DB_Zones_PerformZoneLoad.create(g_Pointers->m_DB_Zones_PerformZoneLoad, DB_Zones_PerformZoneLoad_Detour);
 }

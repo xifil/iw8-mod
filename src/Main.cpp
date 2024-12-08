@@ -46,24 +46,19 @@ extern "C" __declspec(dllexport) int DiscordCreate() {
 	printf("[DiscordCreate] called.\n");
 #	if !CLIENT_SHIP
 		CreateThread(0, 0xA0, (LPTHREAD_START_ROUTINE)entry_point, 0, 0, 0);
-		CreateThread(0, 0, (LPTHREAD_START_ROUTINE)DiscordThread, 0, 0, 0);
 #	endif
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)DiscordThread, 0, 0, 0);
 	return 1;
 }
 
 bool s_ExecutedPostUnpack = false;
-bool s_PatchedMysteryFunction = false;
 void PostUnpack() {
 #	if CLIENT_SHIP
-		if (!s_PatchedMysteryFunction) {
-			//utils::hook::jump(0x140383F80_g, MysteryFunctionDetour);
-			utils::hook::set(0x143DF4548_g, MysteryFunctionDetour);
-			s_PatchedMysteryFunction = true;
-		}
-		return;
+		utils::hook::set(0x143DF4548_g, MysteryFunctionDetour);
 #	else
 		utils::hook::jump(0x1403061A0_g, MysteryFunctionDetour);
 #	endif
+
 	if (s_ExecutedPostUnpack) {
 		return;
 	}
@@ -73,8 +68,10 @@ void PostUnpack() {
 	g_Pointers = std::make_unique<Game::Pointers>();
 	printf("[PostUnpack] pointers initialized.\n");
 
-	debug_output_init(nullptr);
-	addCustomCmds();
+#	if !CLIENT_SHIP
+		debug_output_init(nullptr);
+		addCustomCmds();
+#	endif
 	patchGame();
 
 	printf("[PostUnpack] warning: this is a work in progress and bugs should be expected.\n");

@@ -53,14 +53,38 @@ namespace Game {
 		PointerList GetPointerList();
 
 		Functions::CG_WorldPosToScreenPosRealT* m_CG_WorldPosToScreenPosReal{};
+		Functions::CL_PlayerData_GetDDLBufferT* m_CL_PlayerData_GetDDLBuffer{};
+		Functions::Com_GameInfo_GetGameTypeForInternalNameT* m_Com_GameInfo_GetGameTypeForInternalName{};
+		Functions::Com_GameInfo_GetMapInfoForLoadNameT* m_Com_GameInfo_GetMapInfoForLoadName{};
+		Functions::Com_ParseNavStringsT* m_Com_ParseNavStrings{};
+		Functions::DB_Zones_PerformZoneLoadT* m_DB_Zones_PerformZoneLoad{};
+		Functions::DDL_GetEnumT* m_DDL_GetEnum{};
+		Functions::DDL_GetIntT* m_DDL_GetInt{};
+		Functions::DDL_GetRootStateT* m_DDL_GetRootState{};
+		Functions::DDL_GetStringT* m_DDL_GetString{};
+		Functions::DDL_MoveToPathT* m_DDL_MoveToPath{};
+		Functions::DDL_SetEnumT* m_DDL_SetEnum{};
+		Functions::DDL_SetIntT* m_DDL_SetInt{};
+		Functions::DDL_SetStringT* m_DDL_SetString{};
+		Functions::Dvar_GetIntSafeT* m_Dvar_GetIntSafe{};
 		Functions::Dvar_GetStringSafeT* m_Dvar_GetStringSafe{};
 		Functions::FS_ReadFileT* m_FS_ReadFile{};
 		Functions::Info_ValueForKeyT* m_Info_ValueForKey{};
 		Functions::j_vaT* m_j_va{};
+		Functions::lua_getfieldT* m_lua_getfield{};
+		Functions::lua_pushstringT* m_lua_pushstring{};
+		Functions::lua_removeT* m_lua_remove{};
 		Functions::lua_tobooleanT* m_lua_toboolean{};
 		Functions::lua_tointeger32T* m_lua_tointeger32{};
 		Functions::LuaShared_PCallT* m_LuaShared_PCall{};
+		Functions::LUI_BeginTableT* m_LUI_BeginTable{};
+		Functions::LUI_EndTableT* m_LUI_EndTable{};
+		Functions::LUI_OpenMenuT* m_LUI_OpenMenu{};
+		Functions::PartyHost_StartPrivatePartyT* m_PartyHost_StartPrivateParty{};
+		Functions::ProcessScriptFileT* m_ProcessScriptFile{};
+		Functions::SEH_StringEd_GetStringT* m_SEH_StringEd_GetString{};
 		Functions::SV_Cmd_ArgvT* m_SV_Cmd_Argv{};
+		Functions::SV_UpdateUserinfo_fT* m_SV_UpdateUserinfo_f{};
 
 		IW8::clientUIActive_t* m_clientUIActives{};
 		IW8::CmdArgs* m_cmd_args{};

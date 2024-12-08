@@ -15,11 +15,11 @@ std::int64_t Hooks::LUI_CoD_LuaCall_GetServerData_Detour(IW8::lua_State* luaVM) 
 
 	if (index > numlocalservers) {
 		printf("[LUI_CoD_LuaCall_GetServerData] index exceeded number of local servers %d/%d\n", index, numlocalservers);
-		lua_pushstring(reinterpret_cast<std::uintptr_t>(luaVM), "");
+		g_Pointers->m_lua_pushstring(luaVM, "");
 		return 1;
 	}
 	auto data = &localServers[indexes[index]];
-	lua_pushstring(reinterpret_cast<std::uintptr_t>(luaVM), data->m_MapName);
+	g_Pointers->m_lua_pushstring(luaVM, data->m_MapName);
 
 	return 1;
 }

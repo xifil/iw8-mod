@@ -1,4 +1,5 @@
 #include "Main.hpp"
+#include "game/game.hpp"
 #include "hooks/hooks.hpp"
 #include "common/utils/string.hpp"
 
@@ -8,8 +9,6 @@ std::int64_t Hooks::LUI_CoD_LuaCall_CRMGetMessageContent_impl_Detour(IW8::lua_St
 	auto lua_tonumber32 = reinterpret_cast<float(*)(IW8::lua_State*, int)>(0x1419CE9C0_g);
 	auto LuaShared_SetTableInt = reinterpret_cast<void(*)(const char*, __int64, IW8::lua_State*)>(0x1419CE4F0_g);
 	auto LuaShared_SetTableString = reinterpret_cast<void(*)(const char*, const char*, IW8::lua_State*)>(0x1419CE5A0_g);
-	auto LUI_BeginTable1 = reinterpret_cast<void(*)(const char*, IW8::lua_State*)>(0x1419BCF00_g);
-	auto LUI_EndTable = reinterpret_cast<void(*)(IW8::lua_State*)>(0x1419BDAC0_g);
 
 	int controllerIndex = (int)lua_tonumber32(luaVM, 1);
 	int locationID = (int)lua_tonumber32(luaVM, 2);
@@ -32,7 +31,7 @@ std::int64_t Hooks::LUI_CoD_LuaCall_CRMGetMessageContent_impl_Detour(IW8::lua_St
 			}
 			
 			lua_createtable(luaVM, 0, 0);
-			LUI_BeginTable1("message", luaVM);
+			g_Pointers->m_LUI_BeginTable("message", luaVM);
 			for (auto& [key, val] : messageData.items()) {
 				if (val.is_string()) {
 					LuaShared_SetTableString(key.c_str(), utils::string::replace(val.get<std::string>(), "\\n", "\n").c_str(), luaVM);
@@ -41,7 +40,7 @@ std::int64_t Hooks::LUI_CoD_LuaCall_CRMGetMessageContent_impl_Detour(IW8::lua_St
 					LuaShared_SetTableInt(key.c_str(), val.get<std::int64_t>(), luaVM);
 				}
 			}
-			LUI_EndTable(luaVM);
+			g_Pointers->m_LUI_EndTable(luaVM);
 
 			pushedData = true;
 			break;
@@ -51,52 +50,5 @@ std::int64_t Hooks::LUI_CoD_LuaCall_CRMGetMessageContent_impl_Detour(IW8::lua_St
 	if (!pushedData) {
 		lua_pushnil(luaVM);
 	}
-	// might move to json in future idk
-	/*if (locationID == 1 && messageIndex == 0) {
-		lua_createtable(luaVM, 0, 0);
-		LUI_BeginTable1("message", luaVM);
-		LuaShared_SetTableString("message_id", "1", luaVM);
-		LuaShared_SetTableString("title", "^1Welcome to iw8-mod!^7", luaVM);
-		LuaShared_SetTableString("content_short", "content_short placeholder", luaVM);
-		LuaShared_SetTableString("action", "goto_ingame", luaVM);
-		LuaShared_SetTableString("content_long", "This mod is a work-in-progress and should not be demonstrated as a finished product.\n"
-			"Any bugs or errors found should be reported to ^4@lifix^7 or ^4@xifil^7 on Discord.\n"
-			"\n"
-			"^7https://discord.gg/dPzJajt", luaVM);
-		LuaShared_SetTableString("layout_type", "0", luaVM);
-		
-		//LuaShared_SetTableString("popup_image", "mw_store_billboard_bronze_knight", luaVM);
-		//LuaShared_SetTableString("image", "mw_store_billboard_bronze_knight", luaVM);
-		//LuaShared_SetTableString("action_location", "barracks", luaVM);
-
-		LuaShared_SetTableString("checksum", "12345678", luaVM);
-		LuaShared_SetTableInt("location_id", 1, luaVM);
-		LuaShared_SetTableInt("message_index", 0, luaVM);
-		LUI_EndTable(luaVM);
-	}
-	else if (locationID == 1 && messageIndex == 1) {
-		lua_createtable(luaVM, 0, 0);
-		LUI_BeginTable1("message", luaVM);
-		LuaShared_SetTableString("message_id", "1", luaVM);
-		LuaShared_SetTableString("title", "Credits", luaVM);
-		LuaShared_SetTableString("content_short", "^1xifil^7 - lead developer\n"
-			"^1ProjectDonetsk^7 - base code\n"
-			"^1codUPLOADER^7 - original code author", luaVM);
-		LuaShared_SetTableString("action", "goto_ingame", luaVM);
-		LuaShared_SetTableString("content_long", "content_long placeholder", luaVM);
-		LuaShared_SetTableString("layout_type", "0", luaVM);
-
-		//LuaShared_SetTableString("popup_image", "mw_store_billboard_bronze_knight", luaVM);
-		//LuaShared_SetTableString("image", "mw_store_billboard_bronze_knight", luaVM);
-		//LuaShared_SetTableString("action_location", "barracks", luaVM);
-
-		LuaShared_SetTableString("checksum", "12345679", luaVM);
-		LuaShared_SetTableInt("location_id", 1, luaVM);
-		LuaShared_SetTableInt("message_index", 1, luaVM);
-		LUI_EndTable(luaVM);
-	}
-	else {
-		lua_pushnil(luaVM);
-	}*/
 	return 1;
 }

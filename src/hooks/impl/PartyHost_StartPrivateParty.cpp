@@ -1,4 +1,5 @@
 #include "Main.hpp"
+#include "game/game.hpp"
 #include "hooks/hooks.hpp"
 
 #include "functions.hpp"
@@ -9,10 +10,8 @@ void Hooks::PartyHost_StartPrivateParty_Detour(int localClientNum, int localCont
 
 	static bool autoExec = false;
 	if (!autoExec) {
-		auto LUI_OpenMenu = reinterpret_cast<void(*)(int localClientNum, const char* menuName, int isPopup, int isModal, int isExclusive)>(0x141B9BDB0_g);
-
 		Cbuf_AddText("exec autoexec.cfg");
-		LUI_OpenMenu(0, "CRMContainer", 0, 0, 0);
+		g_Pointers->m_LUI_OpenMenu(IW8::LocalClientNum_t::LOCAL_CLIENT_0, "CRMContainer", FALSE, FALSE, FALSE);
 		LoadInventory();
 
 		// skips Tutorial stuff

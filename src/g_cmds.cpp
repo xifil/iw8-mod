@@ -290,9 +290,8 @@ void Cmd_OpenMenu_f()
 	char command[500];
 	if (Cmd_Argc() == 2)
 	{
-		auto LUI_OpenMenu = reinterpret_cast<void(*)(int localClientNum, const char* menuName, int isPopup, int isModal, int isExclusive)>(0x141B9BDB0_g);
 		Cmd_ArgvBuffer(1, command, 500);
-		LUI_OpenMenu(0, command, true, false, false);
+		g_Pointers->m_LUI_OpenMenu(IW8::LocalClientNum_t::LOCAL_CLIENT_0, command, TRUE, FALSE, FALSE);
 	}
 }
 

@@ -63,7 +63,6 @@ inline bool file_exists(const char* name) {
 }
 
 bool Dvar_GetBoolSafe(const char* dvar);
-int Dvar_GetIntSafe(const char* dvar);
 
 unsigned int* GetRandSeed();
 unsigned __int64 Sys_Microseconds();
@@ -84,10 +83,7 @@ void Cbuf_AddText(const char* cmd);
 const char* lua_tolstring(uintptr_t L, int idx, size_t* len);
 
 void lua_pushboolean(uintptr_t L, int b);
-void lua_remove(uintptr_t L, int idx);
-void lua_getfield(uintptr_t L, int idx, const char* k);
 void lua_pushvalue(uintptr_t L, int idx);
-void lua_pushstring(uintptr_t L, const char* str);
 void lua_pushinteger(uintptr_t L, int n);
 void lua_settop(uintptr_t L, int idx);
 
@@ -156,14 +152,7 @@ const char* _va(const char* format, ...);
 
 void CopyStdString(const std::string& str, const char** target);
 
-const char* SEH_StringEd_GetString(const char* string);
-
-IW8::mapInfo* Com_GameInfo_GetMapInfoForLoadName(const char* mapName);
-
 const char* GetMapName(const char* mapName);
-
-IW8::gameTypeInfo* Com_GameInfo_GetGameTypeForInternalName(const char* mapName);
-
-const char* GetGametypeName(const char* gameType);
+const char* GetGameTypeName(const char* gameType);
 
 #pragma endregion

@@ -93,12 +93,6 @@ bool Dvar_GetBoolSafe(const char* dvar)
 	return func(dvar);
 }
 
-int Dvar_GetIntSafe(const char* dvar)
-{
-	auto func = reinterpret_cast<int(*)(const char* path)>(0x1413E6960_g);
-	return func(dvar);
-}
-
 unsigned int* GetRandSeed() {
 	auto func = reinterpret_cast<unsigned int* (*)()>(0x1413DD630_g);
 	return func();
@@ -150,11 +144,10 @@ IW8::dvar_t* Dvar_RegisterInt(const char* dvarName, bool value, int min, int max
 }
 
 void LUI_CoD_LuaCall_ExecNow(IW8::lua_State* luaVM, const char* str) {
-	std::uintptr_t luaVML = reinterpret_cast<std::uintptr_t>(luaVM);
-	lua_getfield(luaVML, -10002, "Engine");
-	lua_getfield(luaVML, -1, "DAGFFDGFII");
-	lua_remove(luaVML, -2);
-	lua_pushstring(luaVML, str);
+	g_Pointers->m_lua_getfield(luaVM, -10002, "Engine");
+	g_Pointers->m_lua_getfield(luaVM, -1, "DAGFFDGFII");
+	g_Pointers->m_lua_remove(luaVM, -2);
+	g_Pointers->m_lua_pushstring(luaVM, str);
 	g_Pointers->m_LuaShared_PCall(luaVM, 1, 1);
 }
 
@@ -174,24 +167,9 @@ void lua_pushboolean(uintptr_t L, int b) {
 	func(L, b);
 }
 
-void lua_remove(uintptr_t L, int idx) {
-	auto func = reinterpret_cast<void(*)(uintptr_t, int)>(0x142084420_g);
-	func(L, idx);
-}
-
-void lua_getfield(uintptr_t L, int idx, const char* k) {
-	auto func = reinterpret_cast<void(*)(uintptr_t, int, const char*)>(0x1420836E0_g);
-	func(L, idx, k);
-}
-
 void lua_pushvalue(uintptr_t L, int idx) {
 	auto func = reinterpret_cast<void(*)(uintptr_t, int)>(0x142084200_g);
 	func(L, idx);
-}
-
-void lua_pushstring(uintptr_t L, const char* str) {
-	auto func = reinterpret_cast<void(*)(uintptr_t, const char*)>(0x142084120_g);
-	func(L, str);
 }
 
 void lua_pushinteger(uintptr_t L, int n) {
@@ -488,33 +466,26 @@ void CopyStdString(const std::string& str, const char** target) {
 	strcpy(const_cast<char*>(*target), str.data());
 }
 
-const char* SEH_StringEd_GetString(const char* string) {
-	auto func = reinterpret_cast <const char* (*)(const char*)>(0x1413CC2A0_g);
-	return func(string);
-}
-
-IW8::mapInfo* Com_GameInfo_GetMapInfoForLoadName(const char* mapName) {
-	auto func = reinterpret_cast<IW8::mapInfo*(*)(const char*)>(0x1410C77F0_g);
-	return func(mapName);
-}
-
 const char* GetMapName(const char* mapName) {
-	IW8::mapInfo* mapinfo = Com_GameInfo_GetMapInfoForLoadName(mapName);
-	if (!mapinfo) return "Unknown Map";
-	if (mapinfo->m_MapName[0] == '1') return "error";
-	return SEH_StringEd_GetString(mapinfo->m_MapName);
+	IW8::mapInfo* info = g_Pointers->m_Com_GameInfo_GetMapInfoForLoadName(mapName);
+	if (!info) {
+		return "Unknown Map";
+	}
+	if (info->m_MapName[0] == '\x1F') {
+		return "error";
+	}
+	return g_Pointers->m_SEH_StringEd_GetString(info->m_MapName);
 }
 
-IW8::gameTypeInfo* Com_GameInfo_GetGameTypeForInternalName(const char* mapName) {
-	auto func = reinterpret_cast<IW8::gameTypeInfo*(*)(const char*)>(0x1410C7580_g);
-	return func(mapName);
-}
-
-const char* GetGametypeName(const char* gameType) {
-	IW8::gameTypeInfo* gametypeinfo = Com_GameInfo_GetGameTypeForInternalName(gameType);
-	if (!gametypeinfo) return "Unknown Mode";
-	if (gametypeinfo->m_GameTypeName[0] == 31) return "error";
-	return SEH_StringEd_GetString(gametypeinfo->m_GameTypeName);
+const char* GetGameTypeName(const char* gameType) {
+	IW8::gameTypeInfo* info = g_Pointers->m_Com_GameInfo_GetGameTypeForInternalName(gameType);
+	if (!info) {
+		return "Unknown Mode";
+	}
+	if (info->m_GameTypeName[0] == '\x1F') {
+		return "error";
+	}
+	return g_Pointers->m_SEH_StringEd_GetString(info->m_GameTypeName);
 }
 
 #pragma endregion
