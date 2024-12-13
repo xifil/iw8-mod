@@ -357,3 +357,4 @@ MigrationBackup/
 **.vcxproj.filters
 **.vcxproj.user
 build/
+src/version.hpp
