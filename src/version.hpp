@@ -22,9 +22,9 @@
 #	undef PRJ_TIMESTAMP
 #endif
 
-#define GIT_DESCRIBE "c95cec5-dirty"
+#define GIT_DESCRIBE "31e204f-dirty"
 #define GIT_DIRTY 1
-#define GIT_HASH "c95cec5cdd2e1e1c8ddb68dcfac8887c6ad9a318"
+#define GIT_HASH "31e204f10b8d4378478bc2ce000700ab70b3042a"
 #define GIT_TAG ""
 #define GIT_BRANCH "develop"
-#define PRJ_TIMESTAMP "Sun Dec 08 18:38:43 2024"
+#define PRJ_TIMESTAMP "Fri Dec 13 18:45:56 2024"

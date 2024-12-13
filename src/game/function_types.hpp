@@ -5,12 +5,14 @@
 #include "engine/iw8/DDLState.hpp"
 #include "engine/iw8/gameTypeInfo.hpp"
 #include "engine/iw8/gentity_s.hpp"
+#include "engine/iw8/LocalUserPresenceData.hpp"
 #include "engine/iw8/lua_State.hpp"
 #include "engine/iw8/mapInfo.hpp"
 #include "engine/iw8/ScreenPlacement.hpp"
 #include "engine/iw8/ScriptFile.hpp"
 #include "engine/iw8/vec2_t.hpp"
 #include "engine/iw8/vec3_t.hpp"
+#include "engine/iw8/unknown/BNetClass.hpp"
 #include "engine/iw8/enums/DB_FastFileFailureMode.hpp"
 #include "engine/iw8/enums/LocalClientNum_t.hpp"
 #include "engine/iw8/enums/PartyHostType.hpp"
@@ -23,6 +25,7 @@ namespace Game::Functions {
 	using Com_GameInfo_GetGameTypeForInternalNameT = IW8::gameTypeInfo*(const char* gameTypeName);
 	using Com_GameInfo_GetMapInfoForLoadNameT = IW8::mapInfo*(const char* mapName);
 	using Com_ParseNavStringsT = bool(const char* pStr, const char** navStrings, int navStringMax, int* navStringCount);
+	using DB_LoadXFileT = int(const char* zoneName, uintptr_t zoneMem, uintptr_t assetList, int zoneFlags, bool wasPaused, int failureMode, uintptr_t outSignature);
 	using DB_Zones_PerformZoneLoadT = std::int64_t(bool processingPreloadedFiles, bool isBaseMap, bool wasPaused, IW8::DB_FastFileFailureMode failureMode);
 	using DDL_GetEnumT = const char*(const IW8::DDLState* state, const IW8::DDLContext* ddlContext);
 	using DDL_GetIntT = int(const IW8::DDLState* state, const IW8::DDLContext* ddlContext);
@@ -51,4 +54,5 @@ namespace Game::Functions {
 	using SEH_StringEd_GetStringT = const char*(const char* pszReference);
 	using SV_Cmd_ArgvT = const char*(int argIndex);
 	using SV_UpdateUserinfo_fT = void(void* cl);
+	using Unk_GetBNetClassT = IW8::BNetClass*();
 }

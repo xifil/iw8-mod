@@ -44,6 +44,11 @@ namespace Game {
 					{ "48 83 EC ? 45 33 D2 41 C7 01" },
 					SETUP_POINTER(Com_ParseNavStrings)
 				},
+				// DB_LoadXFile
+				{
+					{ "E8 ? ? ? ? 8B F8 44 38 AB", SETUP_MOD(Add(1).Rip()) },
+					SETUP_POINTER(DB_LoadXFile)
+				},
 				// DB_Zones_PerformZoneLoad
 				{
 					{ "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 54 41 55 41 56 41 57 48 83 EC ? 45 8B F9 41 0F B6 F0" },
@@ -184,6 +189,11 @@ namespace Game {
 					{ "40 53 48 83 EC ? 48 8B D9 B9 ? ? ? ? E8 ? ? ? ? 48 8D 8B" },
 					SETUP_POINTER(SV_UpdateUserinfo_f)
 				},
+				// Unk_GetBNetClass
+				{
+					{ "E8 ? ? ? ? 44 38 B8", SETUP_MOD(Add(1).Rip()) },
+					SETUP_POINTER(Unk_GetBNetClass)
+				},
 				// clientUIActives
 				{
 					{ "48 8D 15 ? ? ? ? 8B 4C 10", SETUP_MOD(Add(3).Rip()) },
@@ -208,6 +218,11 @@ namespace Game {
 				{
 					{ "88 1D ? ? ? ? E8 ? ? ? ? 48 89 1D ? ? ? ? 88 1D", SETUP_MOD(Add(2).Rip()) },
 					SETUP_POINTER(s_luaInFrontend)
+				},
+				// s_presenceData
+				{
+					{ "48 8D 05 ? ? ? ? 4C 8D 05 ? ? ? ? 48 39 08 74 ? FF C2 48 05", SETUP_MOD(Add(3).Rip()) },
+					SETUP_POINTER(s_presenceData)
 				}
 			}
 		};

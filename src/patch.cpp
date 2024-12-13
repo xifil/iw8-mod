@@ -17,8 +17,6 @@ int iTick = 0;
 bool bFinished;
 bool btoggle;
 
-IW8::dvar_t* cl_textChatEnabled = reinterpret_cast<IW8::dvar_t*>(0x14EEB0738_g);
-
 uintptr_t xuid_generated;
 int collision_ticker;
 void R_EndFrame_Detour() {
@@ -38,28 +36,50 @@ void R_EndFrame_Detour() {
 
 	if (!bFinished) {
 		if (iTick == 500) {
-			DWORD flOldProtect;
+			utils::nt::library game{};
 			IW8::XUID xuid;
 			xuid.RandomXUID();
-			utils::hook::set<int>(0x144622BE0_g, 1);
 
-			utils::hook::set<uintptr_t>(0x14E5C07C0_g, 0x11CB1243B8D7C31E | xuid.m_ID * xuid.m_ID);
-			utils::hook::set<uintptr_t>(0x14F05ACE8_g, 0x11CB1243B8D7C31E | xuid.m_ID * xuid.m_ID);
+			/*
+				0x144622BE0 - presumably token has been processed (looked at neighbouring string)
+				0x144622910 - state?
+				0x14E371231 - authed? leaving this at 0 causes a softlock at loading assets
+			*/
 
-			utils::hook::set<uintptr_t>(0x14E5C07E8_g, 0x11CB1243B8D7C31E | (xuid.m_ID * xuid.m_ID) / 6); // s_presenceData
+			std::uint64_t xuidMagic = 0x11CB1243B8D7C31E;
+			std::uint64_t xuidId = xuid.m_ID * xuid.m_ID;
 
-			utils::hook::set<int>(0x14E371231_g, 1);
-			utils::hook::set<int>(0x144622910_g, 2);
-			utils::hook::set<int>(0x144622BE0_g, 1);
+			IW8::BNetClass* bnet = g_Pointers->m_Unk_GetBNetClass();
 
-			utils::hook::set<char>(*reinterpret_cast<uintptr_t*>(0x14EE560B0_g) + 0x28, 0);
-			utils::hook::set(0x14E5C0730_g, 2);
+			bnet->m_FinishedAuth = true;
 
-			auto get_bnet_class = reinterpret_cast<uintptr_t(*)()>(0x141660280_g);
-			uintptr_t bnet_class = get_bnet_class();
-			*(DWORD*)(bnet_class + 0x2F4) = 0x795230F0;
-			*(DWORD*)(bnet_class + 0x2FC) = 0;
-			*(BYTE*)(bnet_class + 0x2F8) = 31;
+			//utils::hook::set<uintptr_t>(0x14E5C07C0_g, xuidMagic | xuidId);
+			*Memory::SigScan("48 8D 3D ? ? ? ? 0F 1F 44 00 ? 48 63 C3", game.get_name(), "XUID Check #1").Add(3).Rip() // verified
+				.As<std::uint64_t*>() = xuidMagic | xuidId;
+			//utils::hook::set<uintptr_t>(0x14F05ACE8_g, xuidMagic | xuidId);
+			*Memory::SigScan("48 8D 0D ? ? ? ? E8 ? ? ? ? 4C 8D 0D ? ? ? ? 48 89 44 24", game.get_name(), "XUID Check #2").Add(3).Rip()
+				.As<std::uint64_t*>() = xuidMagic | xuidId;
+
+			(*g_Pointers->m_s_presenceData)[0].m_Current.m_CrossTitlePresenceData.m_PlatformID = xuidMagic | xuidId / 6;
+
+			//utils::hook::set<int>(0x14E371231_g, 1); // presumably is authed?
+			*Memory::SigScan("80 3D ? ? ? ? ? 74 ? 48 89 7C 24", game.get_name(), "Auth Check #1").Add(2).Rip().Add(1)
+				.As<int*>() = 1;
+			bnet->m_State = 2;
+			bnet->m_FinishedAuth = true;
+
+			//IW8::dvar_t* DVARBOOL_xp_dec_dc = reinterpret_cast<IW8::dvar_t*>(0x14EE560B0_g);
+			IW8::dvar_t* DVARBOOL_xp_dec_dc = Memory::SigScan("48 8B 05 ? ? ? ? 80 78 ? ? 74 ? 8B CE", game.get_name(), "DVARBOOL_xp_dec_dc").Add(3).Rip()
+				.As<IW8::dvar_t*>();
+			DVARBOOL_xp_dec_dc->m_Current.m_Enabled = false;
+
+			//utils::hook::set(0x14E5C0730_g, 2);
+			Memory::SigScan("4C 8D 35 ? ? ? ? 48 8B D8", game.get_name(), "Auth Check #2").Add(3).Rip()
+				.As<int&>() = 2;
+
+			bnet->m_Var3 = 0x795230F0;
+			bnet->m_Var4 = 0x1F;
+			bnet->m_Var5 = 0x00000000;
 
 			printf("[R_EndFrame] patched battle.net -> loaded!\n");
 			bFinished = true;
@@ -117,28 +137,30 @@ void hooks() {
 	// remove FF Header version check
 	// utils::hook::jump(0x1411A7840_g, DB_CheckXFileVersion_Detour);
 
-	bg_getweapondismembermentenabled.create(0x141170C00_g, BG_GetWeaponDismembermentEnabled_Detour);
-	cg_overrideimpacteffecttype.create(0x141733CD0_g, CG_OverrideImpactEffectType_Detour);
-	cl_keys_event.create(0x1415BEB80_g, CL_Keys_Event_Detour);
-	CL_TransientsMP_ProcessLoadingQueue.create(0x1415F7BF0_g, CL_TransientsMP_ProcessLoadingQueue_Detour);
-	db_findxassetheader.create(0x1411AA890_g, DB_FindXAssetHeader_Detour);
-	db_getrawbuffer.create(0x1412C29A0_g, DB_GetRawBuffer_Detour);
-	db_getrawbufferinflate.create(0x1412C2AE0_g, DB_GetRawBufferInflate_Detour);
-	load_mapentsasset.create(0x140F61690_g, Load_MapEntsAsset_Detour);
-	load_xmodelasset.create(0x140F62290_g, Load_XModelAsset_Detour);
-	lui_cod_luacall_enginenotifyserver_detour_impl.create(0x1419F7160_g, LUI_CoD_LuaCall_EngineNotifyServer_Detour);
-	lui_cod_registerdvars.create(0x1419D4500_g, LUI_CoD_RegisterDvars_Detour);
-	PM_WeaponUseAmmo.create(0x141155AF0_g, PM_WeaponUseAmmo_Detour);
+#	if !CLIENT_SHIP
+		bg_getweapondismembermentenabled.create(0x141170C00_g, BG_GetWeaponDismembermentEnabled_Detour);
+		cg_overrideimpacteffecttype.create(0x141733CD0_g, CG_OverrideImpactEffectType_Detour);
+		cl_keys_event.create(0x1415BEB80_g, CL_Keys_Event_Detour);
+		CL_TransientsMP_ProcessLoadingQueue.create(0x1415F7BF0_g, CL_TransientsMP_ProcessLoadingQueue_Detour);
+		db_findxassetheader.create(0x1411AA890_g, DB_FindXAssetHeader_Detour);
+		db_getrawbuffer.create(0x1412C29A0_g, DB_GetRawBuffer_Detour);
+		db_getrawbufferinflate.create(0x1412C2AE0_g, DB_GetRawBufferInflate_Detour);
+		load_mapentsasset.create(0x140F61690_g, Load_MapEntsAsset_Detour);
+		load_xmodelasset.create(0x140F62290_g, Load_XModelAsset_Detour);
+		lui_cod_luacall_enginenotifyserver_detour_impl.create(0x1419F7160_g, LUI_CoD_LuaCall_EngineNotifyServer_Detour);
+		lui_cod_registerdvars.create(0x1419D4500_g, LUI_CoD_RegisterDvars_Detour);
+		PM_WeaponUseAmmo.create(0x141155AF0_g, PM_WeaponUseAmmo_Detour);
 
-	utils::hook::jump(0x1417EC930_g, dwGetLogOnStatus_Detour);
-	utils::hook::jump(0x141528490_g, Live_IsUserSignedInToDemonware_Detour);
-	utils::hook::jump(0x1412A1EB0_g, LiveStorage_GetActiveStatsSource_Detour);
-	utils::hook::jump(0x140DFE370_g, Load_ScriptFile_Detour);
-	utils::hook::jump(0x1419B96A0_g, LuaShared_LuaCall_IsDemoBuild_Detour);
-	utils::hook::jump(0x141609140_g, ProfanityFilter_IsBadWord_Detour);
+		utils::hook::jump(0x1417EC930_g, dwGetLogOnStatus_Detour);
+		utils::hook::jump(0x141528490_g, Live_IsUserSignedInToDemonware_Detour);
+		utils::hook::jump(0x1412A1EB0_g, LiveStorage_GetActiveStatsSource_Detour);
+		utils::hook::jump(0x140DFE370_g, Load_ScriptFile_Detour);
+		utils::hook::jump(0x1419B96A0_g, LuaShared_LuaCall_IsDemoBuild_Detour);
+		utils::hook::jump(0x141609140_g, ProfanityFilter_IsBadWord_Detour);
 
-	// replacing Com_GameMode_GetActiveGameMode call with CheatsEnabled for jump_height dvar
-	utils::hook::call(0x14110195A_g, CheatsEnabled);
+		// replacing Com_GameMode_GetActiveGameMode call with CheatsEnabled for jump_height dvar
+		utils::hook::call(0x14110195A_g, CheatsEnabled);
+#	endif
 }
 
 void CL_MainMP_LocalServers_Detour(int localClientNum) {
@@ -223,9 +245,7 @@ void patchGame() {
 	utils::nt::library game{};
 	std::string mod = game.get_name();
 
-#	if !CLIENT_SHIP
-		hooks();
-#	endif
+	hooks();
 
 	// patch ui_maxclients limit
 #	if !CLIENT_SHIP

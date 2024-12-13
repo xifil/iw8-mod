@@ -57,6 +57,7 @@ namespace Game {
 		Functions::Com_GameInfo_GetGameTypeForInternalNameT* m_Com_GameInfo_GetGameTypeForInternalName{};
 		Functions::Com_GameInfo_GetMapInfoForLoadNameT* m_Com_GameInfo_GetMapInfoForLoadName{};
 		Functions::Com_ParseNavStringsT* m_Com_ParseNavStrings{};
+		Functions::DB_LoadXFileT* m_DB_LoadXFile{};
 		Functions::DB_Zones_PerformZoneLoadT* m_DB_Zones_PerformZoneLoad{};
 		Functions::DDL_GetEnumT* m_DDL_GetEnum{};
 		Functions::DDL_GetIntT* m_DDL_GetInt{};
@@ -85,12 +86,14 @@ namespace Game {
 		Functions::SEH_StringEd_GetStringT* m_SEH_StringEd_GetString{};
 		Functions::SV_Cmd_ArgvT* m_SV_Cmd_Argv{};
 		Functions::SV_UpdateUserinfo_fT* m_SV_UpdateUserinfo_f{};
+		Functions::Unk_GetBNetClassT* m_Unk_GetBNetClass{};
 
 		IW8::clientUIActive_t* m_clientUIActives{};
 		IW8::CmdArgs* m_cmd_args{};
 		IW8::gentity_s** m_g_entities{};
 		IW8::lua_State** m_LUI_luaVM{};
 		bool* m_s_luaInFrontend{};
+		IW8::LocalUserPresenceData (*m_s_presenceData)[8]{};
 	};
 }
 inline std::unique_ptr<Game::Pointers> g_Pointers{};
